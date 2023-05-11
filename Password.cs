@@ -3,17 +3,17 @@
 namespace MySQL_PasswordManager
 {
     // A class to deal with all of the password operations.
-    public class Password
+    public static class Password
     {
         // String to connect to the MySQL db.
         // It is private and readonly as we don't want it to be seen and we dont want it to change.
-        private readonly string conn = @"server=localhost;userid=root;password=y4qWs9Jst725peQ^;database=passwordmanagerdb";
+        private static readonly string conn = @"server=localhost;userid=root;password=y4qWs9Jst725peQ^;database=passwordmanagerdb";
 
         // Method for adding a new password to the db.
-        public void AddPassword(string site, string username, string password)
+        public static void AddPassword(string? site, string? username, string? password)
         {
             // If either site, username or password are empty or null, the method throws an exception.
-            if (String.IsNullOrWhiteSpace(site) || String.IsNullOrWhiteSpace(username) || String.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(site) || string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
                 throw new ArgumentNullException("Site, username or password null.");
             }
@@ -32,10 +32,10 @@ namespace MySQL_PasswordManager
         }
 
         // Method to check if a row exists in the db. 
-        public bool SearchDB(string field, string input)
+        public static bool SearchDB(string? field, string? input)
         {            
             // If the input is empty or null, throws an exception.
-            if (String.IsNullOrWhiteSpace(input) || String.IsNullOrWhiteSpace(field))
+            if (string.IsNullOrWhiteSpace(input) || string.IsNullOrWhiteSpace(field))
             {
                 throw new ArgumentNullException("User input or field is null.");
             }
@@ -63,7 +63,7 @@ namespace MySQL_PasswordManager
         }
 
         // Method to delete a password from the db.
-        public void DeletePassword(string field, string input)
+        public static void DeletePassword(string? field, string? input)
         {
             // Connecting to the db.
             using var con = new MySqlConnection(conn);
@@ -80,7 +80,7 @@ namespace MySQL_PasswordManager
         }
 
         // Method to view a row in the db.
-        public void ViewPassword(string field, string input)
+        public static void ViewPassword(string? field, string? input)
         {
             // Connecting to the db.
             using var con = new MySqlConnection(conn);

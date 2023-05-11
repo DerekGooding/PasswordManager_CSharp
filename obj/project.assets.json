@@ -52,23 +52,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Nahdaa\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "E:\\Nuget": {},
+    "E:\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Nahdaa\\Documents\\Projects\\MySQL_PasswordManager\\MySQL_PasswordManager.csproj",
+      "projectUniqueName": "E:\\repos\\PasswordManager_CSharp\\MySQL_PasswordManager.csproj",
       "projectName": "MySQL_PasswordManager",
-      "projectPath": "C:\\Users\\Nahdaa\\Documents\\Projects\\MySQL_PasswordManager\\MySQL_PasswordManager.csproj",
-      "packagesPath": "C:\\Users\\Nahdaa\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Nahdaa\\Documents\\Projects\\MySQL_PasswordManager\\obj\\",
+      "projectPath": "E:\\repos\\PasswordManager_CSharp\\MySQL_PasswordManager.csproj",
+      "packagesPath": "E:\\Nuget",
+      "outputPath": "E:\\repos\\PasswordManager_CSharp\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        "E:\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Nahdaa\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\DGooding\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -77,7 +77,6 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {

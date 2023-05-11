@@ -1,17 +1,15 @@
-﻿
-namespace MySQL_PasswordManager
+﻿namespace MySQL_PasswordManager
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             // Initialising important values.
             int tries = 3;
             bool correct = false;
 
             // Check if the database exists.
-            var checkDB = new CheckDB();
-            if (!checkDB.CheckForDB())
+            if (!CheckDB.CheckForDB())
             {
                 Console.WriteLine("Database does not exist.");
                 return;
@@ -19,7 +17,6 @@ namespace MySQL_PasswordManager
 
             // Validating Master Password
             // User has 3 attempts to write correct master username and password.
-            var Validate = new MasterPassword();
             while (tries > 0)
             {
                 Console.Write("Username: ");
@@ -27,12 +24,11 @@ namespace MySQL_PasswordManager
                 Console.Write("Password: ");
                 var masterInput2 = Console.ReadLine();
 
-                if (!Validate.ValidatePW(masterInput1, masterInput2))
+                if (!MasterPassword.ValidatePW(masterInput1, masterInput2))
                 {
-                    Console.WriteLine("Incorrect username or password.");
-                    Console.WriteLine("{0} attempt(s) remaining.\n", tries - 1);
                     tries--;
-                    correct = false;
+                    Console.WriteLine("Incorrect username or password.");
+                    Console.WriteLine("{0} attempt(s) remaining.\n", tries);
                 }
                 else
                 {
@@ -46,7 +42,7 @@ namespace MySQL_PasswordManager
             if (!correct)
             {
                 Console.WriteLine("Recording breach attempt.");
-                Validate.BreachAttempt();
+                MasterPassword.BreachAttempt();
                 return;
             }
 
@@ -54,169 +50,169 @@ namespace MySQL_PasswordManager
             // Menu for user to choose service.
             while (true)
             {
-                Console.WriteLine("\nWould you like to:\n- Add a password (add)\n- Delete a password (delete)" +
-                    "\n- View a password (view)\n- View breach attempts (breach)\n- Quit (quit)");
-                var userChoice = Console.ReadLine().ToLower();
+                Console.WriteLine("\nWould you like to:\n" +
+                                    "- Add a password (add)\n" +
+                                    "- Delete a password (delete)\n" +
+                                    "- View a password (view)\n" +
+                                    "- View breach attempts (breach)\n" +
+                                    "- Quit (quit)");
+                var userChoice = Console.ReadLine()?.ToLower();
 
-                // If user enters choice incorrectly, they are prompted to enter again.
-                if (String.IsNullOrWhiteSpace(userChoice) || userChoice != "add" && userChoice != "delete" && userChoice != "view"
-                    && userChoice != "quit" && userChoice != "breach")
+                if (userChoice switch
+                    {
+                        "add" => HandleAdd(),
+                        "delete" => HandleDelete(),
+                        "view" => HandleView(),
+                        "breach" => HandleBreach(),
+                        "quit" => HandleQuit(),
+                        _ => HandleInvalid()
+                    }) return;
+            }
+
+        }
+
+        //Handle options. Return true if Quit and exit the program.
+        static bool HandleAdd()
+        {
+            while (true)
+            {
+                Console.Write("\nSite: ");
+                var siteInput = Console.ReadLine();
+                Console.Write("Username: ");
+                var usernameInput = Console.ReadLine();
+                Console.Write("Password: ");
+                var passwordInput = Console.ReadLine();
+
+                // Asking user for confirmation.
+                Console.Write("\nSite: {0}   Username: {1}   Password: {2}\nIs this correct, or would you like to cancel? (Y/N/Cancel): ", siteInput, usernameInput, passwordInput);
+                var userConfirmation = Console.ReadLine()?.ToLower();
+                if (userConfirmation == "y")
                 {
-                    Console.WriteLine("Invalid input, please try again.\n");
+                    // Makes sure null values aren't passed into the method.
+                    try
+                    {
+                        Password.AddPassword(siteInput, usernameInput, passwordInput);
+                    }
+                    catch (Exception)
+                    {
+                        Console.WriteLine("Site, username or password is empty. Please try again.\n");
+                        continue;
+                    }
+                    Console.WriteLine("Password added.");
+                    break;
+
+                }
+                // If user cancels, takes them back to the menu.
+                else if (userConfirmation == "cancel")
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("\nPlease re-enter.");
+                    continue;
+                }
+            }
+            return false;
+        }
+        static bool HandleDelete()
+        {
+            while (true)
+            {
+                Console.Write("\nPlease enter which password you want to delete.\nYou can choose to enter the site, username or password: ");
+                var deleteInput = Console.ReadLine();
+                Console.Write("Is your input the site, username or password? ");
+                var fieldInput = Console.ReadLine();
+
+                try
+                {
+                    // Checking if the site, username, password set exists in the DB.
+                    if (!Password.SearchDB(fieldInput, deleteInput))
+                    {
+                        Console.WriteLine("That {0} does not exist. Please try again.\n", fieldInput);
+                        continue;
+                    }
+                }
+                catch (Exception)
+                {
+                    // Catches if null values are passed or if the site/username/password field is entered incorrectly.
+                    Console.WriteLine("Site, username or password is empty or input does not exist. Please try again.\n");
                     continue;
                 }
 
+                // Displays site, username and password so that user can check what they are deleting.
+                Console.WriteLine();
+                Password.ViewPassword(fieldInput, deleteInput);
 
-                //If user choosed to add a password.
-                else if (userChoice == "add")
+                // Asking for user confirmation.
+                Console.Write("Is this correct, or would you like to cancel? (Y/N/Cancel): ");
+                var userConfirmation = Console.ReadLine()?.ToLower();
+                if (userConfirmation == "y")
                 {
-                    while (true)
-                    {
-                        Console.Write("\nSite: ");
-                        var siteInput = Console.ReadLine();
-                        Console.Write("Username: ");
-                        var usernameInput = Console.ReadLine();
-                        Console.Write("Password: ");
-                        var passwordInput = Console.ReadLine();
-
-                        // Asking user for confirmation.
-                        Console.Write("\nSite: {0}   Username: {1}   Password: {2}\nIs this correct, or would you like to cancel? (Y/N/Cancel): ", siteInput, usernameInput, passwordInput);
-                        var userConfirmation = Console.ReadLine().ToLower();
-                        if (userConfirmation == "y")
-                        {
-                            // Makes sure null values aren't passed into the method.
-                            try
-                            {
-                                var newPassword = new Password();
-                                newPassword.AddPassword(siteInput, usernameInput, passwordInput);
-
-                            }
-                            catch (Exception)
-                            {
-                                Console.WriteLine("Site, username or password is empty. Please try again.\n");
-                                continue;
-                            }
-                            Console.WriteLine("Password added.");
-                            break;
-
-                        }
-                        // If user cancels, takes them back to the menu.
-                        else if (userConfirmation == "cancel")
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            Console.WriteLine("\nPlease re-enter.");
-                            continue;
-                        }
-                    }
-                }
-
-                // If user chooses to delete a password.
-                else if (userChoice == "delete")
-                {
-                    while (true)
-                    {
-                        Console.Write("\nPlease enter which password you want to delete.\nYou can choose to enter the site, username or password: ");
-                        var deleteInput = Console.ReadLine();
-                        Console.Write("Is your input the site, username or password? ");
-                        var fieldInput = Console.ReadLine();
-
-                        var deletePassword = new Password();
-
-                        try
-                        {
-                            // Checking if the site, username, password set exists in the DB.
-                            if (!deletePassword.SearchDB(fieldInput, deleteInput))
-                            {
-                                Console.WriteLine("That {0} does not exist. Please try again.\n", fieldInput);
-                                continue;
-                            }
-                        }
-                        catch(Exception)
-                        {
-                            // Catches if null values are passed or if the site/username/password field is entered incorrectly.
-                            Console.WriteLine("Site, username or password is empty or input does not exist. Please try again.\n");
-                            continue;
-                        }
-
-                        // Displays site, username and password so that user can check what they are deleting.
-                        Console.WriteLine();
-                        deletePassword.ViewPassword(fieldInput, deleteInput);
-
-                        // Asking for user confirmation.
-                        Console.Write("Is this correct, or would you like to cancel? (Y/N/Cancel): ");
-                        var userConfirmation = Console.ReadLine().ToLower();
-                        if (userConfirmation == "y")
-                        {
-                            var delPassword = new Password();
-                            delPassword.DeletePassword(fieldInput, deleteInput);
-                            Console.WriteLine("Password deleted.");
-                            break;
-
-                        }
-                        else if (userConfirmation == "cancel")
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            Console.WriteLine("\nPlease re-enter.");
-                            continue;
-                        }
-                    }
-                }
-                // User chooses to view a password.
-                else if (userChoice == "view")
-                {
-                    while (true)
-                    {
-                        Console.Write("\nPlease enter which password you want to view.\nYou can choose to enter the site, username or password: ");
-                        var input = Console.ReadLine();
-                        Console.Write("Is your input the site, username or password? ");
-                        var field = Console.ReadLine();
-
-                        var viewPassword = new Password();
-
-                        try
-                        {
-                            // Checking if the site, username, password row set exists in the DB.
-                            if (!viewPassword.SearchDB(field, input))
-                            {
-                                Console.WriteLine("That {0} does not exist. Please try again.\n", field);
-                                continue;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            // Catches if null values are passed or if the site/username/password field is entered incorrectly.
-                            Console.WriteLine("Site, username or password is empty or input does not exist. Please try again.\n");
-                            continue;
-                        }
-                        Console.WriteLine();
-                        viewPassword.ViewPassword(field, input);
-                        break;
-                    }
+                    Password.DeletePassword(fieldInput, deleteInput);
+                    Console.WriteLine("Password deleted.");
+                    break;
 
                 }
-                // Displays all the recorded breaches in the DB.
-                else if (userChoice == "breach")
+                else if (userConfirmation == "cancel")
                 {
-                    var viewBreach = new MasterPassword();
-                    Console.WriteLine();
-                    Console.WriteLine("Breach attempts: ");
-                    viewBreach.ViewBreachAttempt();
+                    break;
                 }
-                // User chooses to quit the program.
                 else
                 {
-                    Console.WriteLine();
-                    Console.WriteLine("Thank you for using Password Manager.");
-                    return;
+                    Console.WriteLine("\nPlease re-enter.");
+                    continue;
                 }
             }
+            return false;
+        }
+        static bool HandleView()
+        {
+            while (true)
+            {
+                Console.Write("\nPlease enter which password you want to view.\nYou can choose to enter the site, username or password: ");
+                var input = Console.ReadLine();
+                Console.Write("Is your input the site, username or password? ");
+                var field = Console.ReadLine();
 
+                try
+                {
+                    // Checking if the site, username, password row set exists in the DB.
+                    if (!Password.SearchDB(field, input))
+                    {
+                        Console.WriteLine("That {0} does not exist. Please try again.\n", field);
+                        continue;
+                    }
+                }
+                catch (Exception)
+                {
+                    // Catches if null values are passed or if the site/username/password field is entered incorrectly.
+                    Console.WriteLine("Site, username or password is empty or input does not exist. Please try again.\n");
+                    continue;
+                }
+                Console.WriteLine();
+                Password.ViewPassword(field, input);
+                break;
+            }
+            return false;
+        }
+        static bool HandleBreach()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Breach attempts: ");
+            MasterPassword.ViewBreachAttempt();
+            return false;
+        }
+        static bool HandleQuit()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Thank you for using Password Manager.");
+            return true;
+        }
+        static bool HandleInvalid()
+        {
+            Console.WriteLine("Invalid input, please try again.\n");
+            return false;
         }
     }
 }

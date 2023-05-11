@@ -2,15 +2,15 @@
 
 namespace MySQL_PasswordManager
 {
-    public class MasterPassword
+    public static class MasterPassword
     {
         // Initialising some important variables.
-        private string _masterUsername = "user";
-        private string _masterPassword = "pass";
-        private readonly string conn = @"server=localhost;userid=root;password=y4qWs9Jst725peQ^;database=passwordmanagerdb";
+        private static string _masterUsername = "user";
+        private static string _masterPassword = "pass";
+        private static readonly string conn = @"server=localhost;userid=root;password=y4qWs9Jst725peQ^;database=passwordmanagerdb";
 
         // Method to check if the user input username and password matches the set master username and password.
-        public bool ValidatePW(string username, string password)
+        public static bool ValidatePW(string? username, string? password)
         {
             if (username != _masterUsername || password != _masterPassword)
             {
@@ -23,7 +23,7 @@ namespace MySQL_PasswordManager
         }
 
         // Method to record a breach attempt when the master username and password is input incorrectly 3 times.
-        public void BreachAttempt()
+        public static void BreachAttempt()
         {
             // Connecting to and opening the db.
             using var con = new MySqlConnection(conn);
@@ -33,8 +33,8 @@ namespace MySQL_PasswordManager
 
             // Recording the current date and time.
             var now = DateTime.Now.ToString();
-            string date = now.Substring(0, 10);
-            string time = now.Substring(11);
+            string date = now[..10];
+            string time = now[11..];
 
             // Passing the current date and time to the login_attempt table in the db in MySQL.
             cmd.CommandText = "INSERT INTO login_attempts (breach_date, breach_time) VALUES('" + date + "','" + time + "')";
@@ -42,7 +42,7 @@ namespace MySQL_PasswordManager
             con.Close(); // Closing the db once we're done.
         }
 
-        public void ViewBreachAttempt()
+        public static void ViewBreachAttempt()
         {
             // Connecting to and opening the db.
             using var con = new MySqlConnection(conn);
